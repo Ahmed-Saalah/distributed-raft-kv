@@ -2,6 +2,7 @@ package raft
 
 import (
 	"context"
+	"log"
 	"math/rand"
 	"time"
 
@@ -9,19 +10,20 @@ import (
 )
 
 // ticker runs in the background and triggers elections if heartbeats are missed
-
 func (rf *Raft) ticker() {
+	timeout := time.Duration(300+rand.Intn(200)) * time.Millisecond
 	for {
 		rf.mu.Lock()
 		state := rf.state
 		lastActive := rf.lastActive
 		rf.mu.Unlock()
 
-		// generate randomized timeout between 300ms and 500ms
-		timeout := time.Duration(300+rand.Intn(200)) * time.Microsecond
-
 		if state != Leader && time.Since(lastActive) > timeout {
+			rf.mu.Lock()
+			rf.lastActive = time.Now()
+			rf.mu.Unlock()
 			go rf.startElection()
+			timeout = time.Duration(300+rand.Intn(200)) * time.Millisecond
 		}
 
 		time.Sleep(10 * time.Millisecond) // prevent busy waiting
@@ -36,6 +38,7 @@ func (rf *Raft) startElection() {
 	rf.lastActive = time.Now()
 	rf.persist()
 
+	log.Printf("Node %d starting election for term %d", rf.me, rf.currentTerm)
 	term := rf.currentTerm
 	me := rf.me
 	rf.mu.Unlock()
@@ -66,6 +69,7 @@ func (rf *Raft) startElection() {
 			reply, err := rf.peers[peer].RequestVote(ctx, args)
 
 			if err != nil {
+				log.Printf("Node %d failed to reach peer %d: %v", me, peer, err)
 				return
 			}
 
@@ -87,6 +91,7 @@ func (rf *Raft) startElection() {
 			if reply.VoteGranted {
 				votes++
 				if votes > len(rf.peers)/2 {
+					log.Printf("Node %d WON election for term %d! Starting heartbeats...", rf.me, rf.currentTerm)
 					rf.state = Leader
 					for j := range rf.peers {
 						rf.nextIndex[j] = rf.getLastLogIndex() + 1
