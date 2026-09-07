@@ -1,0 +1,10 @@
+# Database state
+data/
+*.bin
+*.tmp
+
+# Mac OS
+.DS_Store
+
+# Compiled Go binaries
+*.exe
