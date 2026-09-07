@@ -14,7 +14,6 @@ type FileStorage struct {
 }
 
 func NewFileStorage(dir string) (*FileStorage, error) {
-	// Ensure the storage directory exists
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return nil, err
 	}
@@ -90,7 +89,7 @@ func (fs *FileStorage) ReadSnapshot() []byte {
 	return data
 }
 
-func (fs *FileStorage) RaftStateSize() int {
+func (fs *FileStorage) ReadStateSize() int {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 
