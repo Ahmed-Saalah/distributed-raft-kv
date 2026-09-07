@@ -10,9 +10,6 @@ service Raft {
   rpc InstallSnapshot(InstallSnapshotArgs) returns (InstallSnapshotReply) {}
 }
 
-// ---------------------------------------------------------
-// RequestVote RPC
-// ---------------------------------------------------------
 message RequestVoteArgs {
   int32 term = 1;
   int32 candidateId = 2;
@@ -25,11 +22,7 @@ message RequestVoteReply {
   bool voteGranted = 2;
 }
 
-// ---------------------------------------------------------
-// AppendEntries RPC
-// ---------------------------------------------------------
 message LogEntry {
-  // Removed the explicit index to match your Go struct
   int32 term = 1;
   bytes command = 2; 
 }
@@ -47,15 +40,11 @@ message AppendEntriesReply {
   int32 term = 1;
   bool success = 2;
   
-  // Fast-backup optimization fields mapped exactly to your code
   int32 xTerm = 3;
   int32 xIndex = 4;
   int32 xLen = 5;
 }
 
-// ---------------------------------------------------------
-// InstallSnapshot RPC
-// ---------------------------------------------------------
 message InstallSnapshotArgs {
   int32 term = 1;
   int32 leaderId = 2;
