@@ -70,7 +70,7 @@ func (rf *Raft) GetState() (int, bool) {
 	return rf.currentTerm, rf.state == Leader
 }
 
-func newRaftNode(peers []pb.RaftClient, me int, persister Storage, applyCh chan ApplyMsg) *Raft {
+func NewRaftNode(peers []pb.RaftClient, me int, persister Storage, applyCh chan ApplyMsg) *Raft {
 	rf := &Raft{}
 	rf.peers = peers
 	rf.persister = persister
