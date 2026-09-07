@@ -2,6 +2,7 @@ package raft
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	pb "github.com/Ahmed-Saalah/distributed-raft-kv/proto"
@@ -20,6 +21,7 @@ func (rf *Raft) Start(command []byte) (int, int, bool) {
 	index := rf.getLastLogIndex() + 1
 	term := rf.currentTerm
 	rf.log = append(rf.log, &pb.LogEntry{Term: int32(term), Command: command})
+	slog.Info("Leader received new command", "node", rf.me, "index", index, "term", term)
 	rf.persist()
 	rf.matchIndex[rf.me] = index
 	rf.nextIndex[rf.me] = index + 1
@@ -196,6 +198,7 @@ func (rf *Raft) AppendEntries(ctx context.Context, args *pb.AppendEntriesArgs) (
 	reply := &pb.AppendEntriesReply{}
 
 	if args.Term > int32(rf.currentTerm) {
+		slog.Debug("Stepping down, received AppendEntries with higher term", "node", rf.me, "currentTerm", rf.currentTerm, "newTerm", args.Term)
 		rf.currentTerm = int(args.Term)
 		rf.state = Follower
 		rf.votedFor = -1

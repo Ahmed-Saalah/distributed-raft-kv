@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -79,6 +80,7 @@ func (kv *KVServer) applier() {
 			}
 
 			kv.mu.Lock()
+			slog.Debug("Applying operation from Raft", "node", kv.me, "opType", op.Type, "key", op.Key)
 			result := kv.applyOp(op)
 			result.Id = op.Id
 
@@ -131,6 +133,7 @@ func (kv *KVServer) submitAndWait(op Op) OpResult {
 	if !isLeader {
 		return OpResult{Err: ErrWrongLeader}
 	}
+	slog.Info("Submitted operation to Raft", "node", kv.me, "opType", op.Type, "key", op.Key, "index", index)
 
 	kv.mu.Lock()
 	ch := make(chan OpResult, 1)

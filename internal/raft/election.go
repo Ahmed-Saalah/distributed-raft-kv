@@ -2,7 +2,7 @@ package raft
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"math/rand"
 	"time"
 
@@ -38,7 +38,7 @@ func (rf *Raft) startElection() {
 	rf.lastActive = time.Now()
 	rf.persist()
 
-	log.Printf("Node %d starting election for term %d", rf.me, rf.currentTerm)
+	slog.Info("Starting election", "node", rf.me, "term", rf.currentTerm)
 	term := rf.currentTerm
 	me := rf.me
 	rf.mu.Unlock()
@@ -69,7 +69,7 @@ func (rf *Raft) startElection() {
 			reply, err := rf.peers[peer].RequestVote(ctx, args)
 
 			if err != nil {
-				log.Printf("Node %d failed to reach peer %d: %v", me, peer, err)
+				slog.Warn("Failed to reach peer for vote", "node", me, "peer", peer, "error", err)
 				return
 			}
 
@@ -91,7 +91,7 @@ func (rf *Raft) startElection() {
 			if reply.VoteGranted {
 				votes++
 				if votes > len(rf.peers)/2 {
-					log.Printf("Node %d WON election for term %d! Starting heartbeats...", rf.me, rf.currentTerm)
+					slog.Info("WON election! Starting heartbeats...", "node", rf.me, "term", rf.currentTerm)
 					rf.state = Leader
 					for j := range rf.peers {
 						rf.nextIndex[j] = rf.getLastLogIndex() + 1

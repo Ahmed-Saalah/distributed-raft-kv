@@ -1,6 +1,7 @@
 package raft
 
 import (
+	"log/slog"
 	"sync"
 	"time"
 
@@ -97,6 +98,7 @@ func NewRaftNode(peers []pb.RaftClient, me int, persister Storage, applyCh chan 
 	rf.lastApplied = rf.lastIncludedIndex
 
 	// Background workers
+	slog.Info("Raft node booted up", "node", me)
 	go rf.ticker()
 	go rf.applier()
 	return rf
