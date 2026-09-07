@@ -2,7 +2,7 @@ services:
   node0:
     build: .
     container_name: raft-node-0
-    command: ["-id", "0", "-port", "5000", "-peers", "node0:5000,node1:5000,node2:5000"]
+    command: ["--id", "0", "--port", "5000", "--peers", "node0:5000,node1:5000,node2:5000"]
     ports:
       - "5000:5000"
     volumes:
@@ -11,7 +11,7 @@ services:
   node1:
     build: .
     container_name: raft-node-1
-    command: ["-id", "1", "-port", "5000", "-peers", "node0:5000,node1:5000,node2:5000"]
+    command: ["--id", "1", "--port", "5000", "--peers", "node0:5000,node1:5000,node2:5000"]
     ports:
       - "5001:5000"
     volumes:
@@ -20,7 +20,7 @@ services:
   node2:
     build: .
     container_name: raft-node-2
-    command: ["-id", "2", "-port", "5000", "-peers", "node0:5000,node1:5000,node2:5000"]
+    command: ["--id", "2", "--port", "5000", "--peers", "node0:5000,node1:5000,node2:5000"]
     ports:
       - "5002:5000"
     volumes:
