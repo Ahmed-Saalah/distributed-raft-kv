@@ -21,9 +21,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// ---------------------------------------------------------
-// RequestVote RPC
-// ---------------------------------------------------------
 type RequestVoteArgs struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Term          int32                  `protobuf:"varint,1,opt,name=term,proto3" json:"term,omitempty"`
@@ -144,14 +141,10 @@ func (x *RequestVoteReply) GetVoteGranted() bool {
 	return false
 }
 
-// ---------------------------------------------------------
-// AppendEntries RPC
-// ---------------------------------------------------------
 type LogEntry struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Removed the explicit index to match your Go struct
-	Term          int32  `protobuf:"varint,1,opt,name=term,proto3" json:"term,omitempty"`
-	Command       []byte `protobuf:"bytes,2,opt,name=command,proto3" json:"command,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Term          int32                  `protobuf:"varint,1,opt,name=term,proto3" json:"term,omitempty"`
+	Command       []byte                 `protobuf:"bytes,2,opt,name=command,proto3" json:"command,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -285,13 +278,12 @@ func (x *AppendEntriesArgs) GetLeaderCommit() int32 {
 }
 
 type AppendEntriesReply struct {
-	state   protoimpl.MessageState `protogen:"open.v1"`
-	Term    int32                  `protobuf:"varint,1,opt,name=term,proto3" json:"term,omitempty"`
-	Success bool                   `protobuf:"varint,2,opt,name=success,proto3" json:"success,omitempty"`
-	// Fast-backup optimization fields mapped exactly to your code
-	XTerm         int32 `protobuf:"varint,3,opt,name=xTerm,proto3" json:"xTerm,omitempty"`
-	XIndex        int32 `protobuf:"varint,4,opt,name=xIndex,proto3" json:"xIndex,omitempty"`
-	XLen          int32 `protobuf:"varint,5,opt,name=xLen,proto3" json:"xLen,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Term          int32                  `protobuf:"varint,1,opt,name=term,proto3" json:"term,omitempty"`
+	Success       bool                   `protobuf:"varint,2,opt,name=success,proto3" json:"success,omitempty"`
+	XTerm         int32                  `protobuf:"varint,3,opt,name=xTerm,proto3" json:"xTerm,omitempty"`
+	XIndex        int32                  `protobuf:"varint,4,opt,name=xIndex,proto3" json:"xIndex,omitempty"`
+	XLen          int32                  `protobuf:"varint,5,opt,name=xLen,proto3" json:"xLen,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -361,9 +353,6 @@ func (x *AppendEntriesReply) GetXLen() int32 {
 	return 0
 }
 
-// ---------------------------------------------------------
-// InstallSnapshot RPC
-// ---------------------------------------------------------
 type InstallSnapshotArgs struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	Term              int32                  `protobuf:"varint,1,opt,name=term,proto3" json:"term,omitempty"`

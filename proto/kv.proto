@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package kv;
+
+option go_package = "github.com/Ahmed-Saalah/distributed-raft-kv/proto";
+
+service KVStore {
+  rpc Put(PutArgs) returns (PutReply) {}
+  rpc Get(GetArgs) returns (GetReply) {}
+}
+
+message PutArgs {
+  string key = 1;
+  string value = 2;
+  uint64 version = 3;
+}
+
+message PutReply {
+  string err = 1;
+}
+
+message GetArgs {
+  string key = 1;
+}
+
+message GetReply {
+  string value = 1;
+  uint64 version = 2;
+  string err = 3;
+}
