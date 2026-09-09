@@ -50,15 +50,17 @@ type KVServer struct {
 
 	data      map[string]valueState
 	waitChans map[int]chan OpResult
+	maxRaftState int
 }
 
-func NewKVServer(me int, rf *raft.Raft, applyCh chan raft.ApplyMsg) *KVServer {
+func NewKVServer(me int, rf *raft.Raft, applyCh chan raft.ApplyMsg, maxRaftState int) *KVServer {
 	kv := &KVServer{
-		me:        me,
-		rf:        rf,
-		applyCh:   applyCh,
-		data:      make(map[string]valueState),
-		waitChans: make(map[int]chan OpResult),
+		me:           me,
+		rf:           rf,
+		applyCh:      applyCh,
+		data:         make(map[string]valueState),
+		waitChans:    make(map[int]chan OpResult),
+		maxRaftState: maxRaftState,
 	}
 
 	go kv.applier()
@@ -89,6 +91,18 @@ func (kv *KVServer) applier() {
 			if ok {
 				ch <- result
 			}
+
+			if kv.maxRaftState != -1 && kv.rf.PersistBytes() > kv.maxRaftState {
+				slog.Info("Log size exceeded threshold, triggering snapshot", "node", kv.me, "size", kv.rf.PersistBytes(), "index", msg.CommandIndex)
+				w := new(bytes.Buffer)
+				e := gob.NewEncoder(w)
+				if err := e.Encode(kv.data); err == nil {
+					kv.rf.Snapshot(msg.CommandIndex, w.Bytes())
+				} else {
+					slog.Error("Failed to encode snapshot data", "error", err)
+				}
+			}
+
 			kv.mu.Unlock()
 		}
 	}
