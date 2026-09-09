@@ -33,10 +33,12 @@ func main() {
 	rootCmd.Flags().Int("id", 0, "Unique ID for this node")
 	rootCmd.Flags().Int("port", 5000, "Port to listen on")
 	rootCmd.Flags().String("peers", "", "Comma-separated list of peer addresses (e.g., localhost:5001,localhost:5002)")
+	rootCmd.Flags().Int("max-raft-state", 10000, "Max log size in bytes before snapshotting (-1 to disable)")
 
 	viper.BindPFlag("id", rootCmd.Flags().Lookup("id"))
 	viper.BindPFlag("port", rootCmd.Flags().Lookup("port"))
 	viper.BindPFlag("peers", rootCmd.Flags().Lookup("peers"))
+	viper.BindPFlag("max-raft-state", rootCmd.Flags().Lookup("max-raft-state"))
 
 	viper.SetEnvPrefix("RAFT")
 	viper.AutomaticEnv()
@@ -81,7 +83,9 @@ func runServer(cmd *cobra.Command, args []string) {
 
 	applyCh := make(chan raft.ApplyMsg)
 	raftNode := raft.NewRaftNode(raftPeers, nodeID, fs, applyCh)
-	kvServer := kvstore.NewKVServer(nodeID, raftNode, applyCh)
+	
+	maxRaftState := viper.GetInt("max-raft-state")
+	kvServer := kvstore.NewKVServer(nodeID, raftNode, applyCh, maxRaftState)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
