@@ -130,7 +130,7 @@ func (rf *Raft) RequestVote(ctx context.Context, args *pb.RequestVoteArgs) (*pb.
 	lastLogIndex := rf.getLastLogIndex()
 	lastLogTerm := rf.getLastLogTerm()
 
-	if args.LastLogIndex < int32(lastLogIndex) || (args.LastLogTerm == int32(lastLogTerm) && args.LastLogIndex < int32(lastLogIndex)) {
+	if args.LastLogTerm < int32(lastLogTerm) || (args.LastLogTerm == int32(lastLogTerm) && args.LastLogIndex < int32(lastLogIndex)) {
 		return reply, nil
 	}
 
