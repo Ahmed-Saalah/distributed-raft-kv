@@ -92,12 +92,11 @@ func NewRaftNode(peers []pb.RaftClient, me int, persister Storage, applyCh chan 
 	rf.triggerAE = make(chan bool, 1)
 
 	// init from state persisted before a crach
-	// rf.readPersist(persister.ReadRaftState())
+	rf.readPersist(persister.ReadRaftState())
 
 	rf.commitIndex = rf.lastIncludedIndex
 	rf.lastApplied = rf.lastIncludedIndex
 
-	// Background workers
 	slog.Info("Raft node booted up", "node", me)
 	go rf.ticker()
 	go rf.applier()
