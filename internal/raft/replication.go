@@ -9,7 +9,7 @@ import (
 )
 
 // entry poing for the app to submit a command to the cluster
-// returns index that the command will appear at it commited, current term, leader?
+// returns index that the command will appear at it (commited, current term, leader)
 func (rf *Raft) Start(command []byte) (int, int, bool) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
@@ -243,18 +243,22 @@ func (rf *Raft) AppendEntries(ctx context.Context, args *pb.AppendEntriesArgs) (
 	}
 
 	// truncate conflicting logs and append new entries
+	persisted := false
 	for i, entry := range args.Entries {
 		index := int(args.PrevLogIndex) + 1 + i
 		if index <= rf.getLastLogIndex() {
 			if rf.getLogTerm(index) != int(entry.Term) {
 				rf.log = rf.log[:rf.getLocalIndex(index)]
 				rf.log = append(rf.log, entry)
-				rf.persist()
+				persisted = true
 			}
 		} else {
 			rf.log = append(rf.log, entry)
-			rf.persist()
+			persisted = true
 		}
+	}
+	if persisted {
+		rf.persist()
 	}
 
 	if int(args.LeaderCommit) > rf.commitIndex {
